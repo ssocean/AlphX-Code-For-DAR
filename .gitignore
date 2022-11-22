@@ -25,7 +25,6 @@ __pycache__/
 *pretrained/
 pretrained
 data
-vis/
 *~
 tmp/
 .idea/
