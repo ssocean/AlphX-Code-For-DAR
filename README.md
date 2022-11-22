@@ -1,6 +1,6 @@
 # AlphX-Code-For-DAR
 ## 粤港澳大湾区（黄埔）国际算法算例大赛-古籍文档图像识别与分析算法比赛 AlphX队源码
-[[说明文档](https://docs.qq.com/doc/DWk9IZ2JYVnNyc0hM)] [[PPT展示](https://...)]
+[[说明文档](https://docs.qq.com/doc/DWk9IZ2JYVnNyc0hM)] [[PPT展示](https://docs.qq.com/doc/DWk9IZ2JYVnNyc0hM)]
 
 ![example](vis/image_553.jpg)
 # 环境配置
@@ -13,8 +13,10 @@ sh train.sh
 `
 sh infer.sh
 `
+# 如有疑问，请随时通过ISSUE与我们取得联系
+
 # 引用
-请考虑引用如下工作
+如果您觉得我们的方案有一定帮助，请考虑引用如下工作~
 ### PAN++
 ```
 @article{wang2021pan++,
