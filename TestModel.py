@@ -15,8 +15,8 @@ from Infer_Utils import *
 GLOBAL_ORDER_ID = 0
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 H = 64
-seq_vis_dir = '1107-seqvis-OL-FULLSIZE-R50-ms0.80-scale2-DP0.005-rec57.7'
-out_dir = 'outputs/1107-R50-BEST'
+seq_vis_dir = 'your path'
+out_dir = 'your path'
 DEBUG = False
 USE_PREVIOUS_PALN = False
 is_RGB = True
@@ -26,23 +26,23 @@ ORDER_WEIGHTS_PTH = 'weights/order-cnt.pth'
 REC_MODEL_WEIGHTS_PTH = 'weights/64_512_best_model_128_256_57.7acc.pt'
 PROCESS_ON_SMALLER_PIC = True
 
-#说明：为减少空间占用，本队将三次提交整合到一个代码中。三次提交分别对应代号PLAN-A、PLAN-B、PLAN-C。请通过更改PLAN值的方式，依次进行测试。
+#说明：为减少空间占用，本队的三次提交均在代码中。三次提交分别对应代号PLAN-A、PLAN-B、PLAN-C。请通过更改PLAN值的方式，依次进行测试。
 # 即，若需要测试PLAN-C,则令下方的PLAN='C'即可。
 PLAN = 'A'
 
-if PLAN = 'A':
+if PLAN == 'A':
     # ------------------PLAN-A----------------------------------
     FIXED_EDGE_LENGTH = 1024
     DET_MODEL_WEIGHTS_PTH = 'weights/det-R50-best.pth.tar'
     DET_CONFIG_FILE = 'config/pan_pp/R50-AUG.py'
     #-----------------------------------------------------------
-elif PLAN = 'B':
+elif PLAN == 'B':
     # ------------------PLAN-B----------------------------------
     FIXED_EDGE_LENGTH = 1024
     DET_MODEL_WEIGHTS_PTH = 'weights/det-R18-best.pth.tar'
     DET_CONFIG_FILE = 'config/pan_pp/R18-AUG.py'
     #-----------------------------------------------------------
-elif PLAN = 'C':
+elif PLAN == 'C':
     # ------------------PLAN-C----------------------------------
     FIXED_EDGE_LENGTH = 2048
     DET_MODEL_WEIGHTS_PTH = 'weights/det-R50-best.pth.tar'
@@ -58,7 +58,7 @@ elif PLAN = 'C':
 class Infer(object):
 
     def __init__(self):
-        self.det_model_weights_pth = DET_MODEL_WEIGHTS_PTH# 'weights/checkpoint.pth.tar' B榜 r50-aug2-best_95ep.pth.tar
+        self.det_model_weights_pth = DET_MODEL_WEIGHTS_PTH
         self.det_config_pth = DET_CONFIG_FILE
         cfg = Config.fromfile(self.det_config_pth)
         for d in [cfg, cfg.data.test]:
@@ -92,10 +92,7 @@ class Infer(object):
         img_height = config['img_height']
         img_width = config['img_width']
         iuput_channel = 3 if is_RGB else 1
-        # crnn = CRNN(3, img_height, img_width, num_class,
-        # map_to_seq_hidden=config['map_to_seq_hidden'],
-        # rnn_hidden=config['rnn_hidden'],
-        # leaky_relu=config['leaky_relu'])
+
         self.rec_model_weights_pth = REC_MODEL_WEIGHTS_PTH
         crnn = CRNN_CBAM(iuput_channel, H, 512, 13981, 128, 256, False)
         crnn.load_state_dict(torch.load(self.rec_model_weights_pth, map_location=self.device))
@@ -106,7 +103,7 @@ class Infer(object):
         self.GID = 0
     def eval(self, image_name):# image_name 传入的是相对于本文件的图片路径，如'images/image_1000.jpg' # ,writer
         # print('Reading', image_name)
-        writer = None # 正式比赛时置None，并注释掉相关行，切记 WARNING  WARNING  WARNING
+        writer = None # 如需可视化，请将writer从main.py传过来
         img=cv2.imread(image_name)
         assert img is not None, image_name
         print(image_name)
@@ -225,7 +222,7 @@ def test(test_loader, model, rec_model,cfg,output_dir,order_model,writer,GID):
                     # print(f'auto shrinked shape:{adaptive_shrink_img.shape}')
                     shrinked_cnts = resize_contour(bbox.copy(),(896,896),(resized_h,resized_w))
                     img_for_roi = adaptive_shrink_img.copy()
-                    # 让cnt边缘平滑些
+                    # cnt边缘平滑
                     approx_cnt = np.array(shrinked_cnts.reshape(-1).reshape(-1, 2).reshape(-1, 1, 2),dtype=np.float32)
                     epsilon = 0.005*cv2.arcLength(approx_cnt,True)
                     shrinked_cnts = cv2.approxPolyDP(approx_cnt,epsilon,True).reshape(-1).reshape(-1, 2)
@@ -278,7 +275,7 @@ def test(test_loader, model, rec_model,cfg,output_dir,order_model,writer,GID):
                 # print(f'Three-time:{erbc_time+deskew_time+overlap_time}')
                 # three_times.append(float(erbc_time+deskew_time+overlap_time+cr_time))
                 if DEBUG:
-
+                    # DEBUG模式在识别部分采用单张推理，以便可视化
 
                     with torch.no_grad():
                         rec_seq = []
@@ -323,6 +320,7 @@ def test(test_loader, model, rec_model,cfg,output_dir,order_model,writer,GID):
             # print(f'Three time:{sum(three_times)}')
             # print(f'ROI Processing Before Rec time:{time_1_2-time_1_1}')
             if not DEBUG:
+                # 比赛时，禁用DEBUG，采用batch方式加速推理
                 # time_1 = time.time()
                 patch_dataset = PatchDataset(all_patches,tfs,opt)
                 demo_loader = torch.utils.data.DataLoader(patch_dataset, batch_size=128,shuffle=False,num_workers=8, pin_memory=True)

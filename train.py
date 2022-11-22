@@ -156,100 +156,8 @@ def train(train_loader, model, optimizer, epoch, start_iter, cfg):
 
         # prepare input
         data.update(dict(cfg=cfg))
-        # print(r'=========================================================================')
-        # forward
-        # imgs = data['imgs'] # BCHW
-#         # print(f'data[imgs].shape:{imgs.shape}')
-#         often = lambda aug: iaa.Sometimes(0.8, aug)
-#         sometimes = lambda aug: iaa.Sometimes(0.5, aug)
-#         seldom = lambda aug: iaa.Sometimes(0.2, aug)
-#         seq_1026 = iaa.Sequential([
-#         seldom(iaa.Invert()),
-#         seldom(iaa.OneOf([
-#         iaa.CoarsePepper(0.005, size_percent=(0, 0.01)),
-#         iaa.CoarseSaltAndPepper(0.005, size_percent=(0, 0.01)),
-#         ]),),
-#         # seldom(iaa.imgcorruptlike.GaussianNoise(severity=1)),
-#         # sometimes(iaa.AddElementwise((-40, 40), per_channel=0.5)),
-#         # sometimes(iaa.JpegCompression(compression=(0, 50))),
-
-#         # sometimes(iaa.JpegCompression(compression=(0, 85))),
-#         # iaa.OneOf([
-#         #     # sometimes(iaa.MotionBlur(k=3, angle=[-45, 45])),
-#         #     often(iaa.GaussianBlur(sigma=(0, 0.5))),
-#         #     often(iaa.JpegCompression(compression=(0, 85))),
-#         #     sometimes(iaa.Sharpen(alpha=(0, 1.0), lightness=(0.8, 1.2))),
-            
-#         # ]),
-
-
-#         # iaa.OneOf([
-#         #     seldom(iaa.imgcorruptlike.Frost(severity=1)),
-#         #     seldom(iaa.imgcorruptlike.Fog(severity=1)),
-#         #     seldom(iaa.imgcorruptlike.Snow(severity=1)),
-#         #     seldom(iaa.Snowflakes(flake_size=(0.1, 0.4), speed=(0.01, 0.05))),
-#         # ]),
-
-
-#         sometimes(iaa.OneOf([
-#                     often(iaa.MultiplyBrightness((0.8, 1.1))),
-#                     often(iaa.LinearContrast((0.9, 1.1))),
-#                     often(iaa.Multiply((0.8, 1.1), per_channel=0.2)),
-#                         ])),
-# # iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.05*255), per_channel=0.5),
-#         sometimes(iaa.OneOf([
-#             iaa.JpegCompression(compression=(0, 70)),
-#             iaa.imgcorruptlike.GaussianNoise(severity=1),
-#             iaa.imgcorruptlike.ShotNoise(severity=1),
-#             iaa.imgcorruptlike.ImpulseNoise(severity=1),
-#             iaa.imgcorruptlike.SpeckleNoise(severity=1),
-#             # iaa.Rain(drop_size=(0.10, 0.20)),
-#         ])),
-# #iaa.imgcorruptlike.Spatter(severity=4)
-
 
         
-        
-#         ], random_order=False) # apply augmenters in random order
-#         # BCHW->BHWC
-        
-        
-        
-        
-#         imgs = imgs.transpose(1,3).transpose(1,2) # B C H W -> B W H C -> B H W C
-#         # print(imgs.shape)
-#         imgs = imgs.cpu()
-#         imgs = imgs.detach().numpy()  # 转回numpy
-#         imgs = imgs.astype(np.uint8)
-        
-#         imgs = seq_1026(images=imgs) # numpy B H W C
-#         norm_imgs = []
-#         for item in imgs:
-#             item = transforms.ToTensor()(item)
-#             item = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-#                                    std=[0.229, 0.224, 0.225])(item)
-#             norm_imgs.append(item)
-#         norm_imgs=torch.stack(norm_imgs)
-#         # print(norm_imgs.shape)
-#         # norm_imgs = np.array(norm_imgs)
-#         imgs = norm_imgs.to(torch.device("cuda"))
-        # BHWC->BCWH->BCHW
-        # imgs = imgs.transpose(1,3).transpose(2,3)
-
-        # npimgs = imgs.cpu()
-        # npimgs = npimgs.detach().numpy()  # 转回numpy
-        # npimgs = npimgs.astype(np.uint8)
-        # writer.add_images('aug_vis', imgs, global_step=iter, dataformats='NCHW')
-
-        
-
-        # print(imgs)
-        # data.update({'imgs':imgs})
-        
-        
-        
-        
-
         outputs = model(**data)
         # *************************************************************************
         # print(outputs)
@@ -472,12 +380,6 @@ if __name__ == '__main__':
         parser.add_argument('--resume', nargs='?', type=str, default=None)
         parser.add_argument('--debug', action='store_true')
         args = parser.parse_args()
-        args.config = 'config/pan_pp/R18-AUG.py'
-        args.resume = 'checkpoints/R18-AUG/det-R18-best.pth.tar'
-        # args.resume = 'weights/r18-norm-92.pth.tar'
-        
-        # args.config = 'config/pan_pp/R50-AUG.py'
-        # args.resume = 'checkpoints/R50-AUG/det-R50-best.pth.tar'
         main(args)
     finally:
         writer.close()

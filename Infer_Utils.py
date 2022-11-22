@@ -289,18 +289,8 @@ def rotateAntiClockWise90(img):  # 顺时针旋转90度
     # cv2.waitKey(0)
     return img90
 def deskew(CRNN_ROI):
-    # src = CRNN_ROI
-    # # showim(src)
-    # h,w = src.shape[:2]
-    # patch_h = H
-    # ratio = patch_h/h
-    # resized_w = int(w*ratio)
-    # img = cv2.resize(src, (resized_w, patch_h))
     deskew_rst = CRNN_ROI
-    # deskew_rst = getCorrect2(deskew_rst)
-    # if get_white_ratio(deskew_rst)<0.85:
-    # deskew_rst = getCorrect1(deskew_rst)
-
+    # 根据比例决定是否进行扭曲矫正，resize操作用于减少计算量
     deskew_rst_for_ratio = cv2.resize(deskew_rst,(100,32))
     if get_white_ratio_cuda(deskew_rst_for_ratio)<0.85:
         deskew_rst = getCorrect1(deskew_rst)
@@ -339,7 +329,6 @@ def overlapping_seg(img):
     # print(f'img.shape waiting for overlap resized :{img.shape}')
     h = patch_h
 
-    # 不要改动
     patch_w = 512
 
     stride_w = 256
@@ -396,7 +385,7 @@ def seq_seg_to_char(seq_img,*param)->list:
     '''
     return #[img0:np.ndarray,img1:np.ndarray,...,img1:np.ndarray]
 
-# s = ['媱怒癡性即是觧脱','晨觧脱二荅也増上𢢔者','舍也増上𢢔者未淂謂淂也身','未淂謂淂也身子𢴃小乘𫠦','身子𢴃小乘𫠦證非増上𢢔']
+
 # overlapping_seg(r'F:\Data\GJJS-dataset\dataset\train\char_seq_bin_2\image_0_11.jpg')
 def merge_str(a:str,b:str,k=2):
     if a != '':
@@ -416,10 +405,8 @@ def merge_strs(strs:list):
     rst = ''
     for i in strs:
         rst = merge_str(rst,i)
-    # if len(strs)>1:
-    #     print(strs)
-    #     print(f'multiple str merge rst:{rst}')
     return rst
+
 def cv2_chinese_text(img, text, position, textColor=(0, 0, 255), textSize=30):
     if text is None:
         return img
@@ -428,7 +415,7 @@ def cv2_chinese_text(img, text, position, textColor=(0, 0, 255), textSize=30):
     # 创建一个可以在给定图像上绘图的对象
     draw = ImageDraw.Draw(img)
     # 字体的格式
-    fontStyle = ImageFont.truetype("/opt/data/private/pan_pp.pytorch/font/NotoSansCJK-Regular.ttc", textSize, encoding="utf-8")
+    fontStyle = ImageFont.truetype("font/NotoSansCJK-Regular.ttc", textSize, encoding="utf-8")
     # 绘制文本
     draw.text(position, text, textColor, font=fontStyle,direction='ttb')
     # 转换回OpenCV格式
@@ -501,17 +488,10 @@ def extract_roi_by_cnt(img_ori,point):
     # 画多边形 生成mask
     img_patch = img[y:y + h, x:x + w]
     mask = np.zeros(img.shape, np.uint8)[y:y + h, x:x + w]
-    # mask2 = cv2.fillPoly(mask.copy(), [pts],
-    #                         (255, 255, 255))  # 用于求 ROI
     mask2 = cv2.drawContours(mask.copy(), [inner_pts], -1, (255,255,255), thickness=-1)
     ones = 2*np.ones(img_patch.shape,dtype=np.uint8)
     img_patch = cv2.add(img_patch,ones)
     ROI = cv2.bitwise_and(mask2, img_patch)
-    # ROI = cv2.bitwise_and(mask2, img)[y:y + h, x:x + w]
-    # if ROI is None:
-    #     print(x, y, w, h)
-    # showim(ROI)
-
     ROI = cv2.rotate(ROI, cv2.ROTATE_90_COUNTERCLOCKWISE)
     return ROI
 def report_speed(outputs, speed_meters):
@@ -559,14 +539,7 @@ def merge_regions(img,cnts):
     img_dilate = otsu_bin(img_dilate)
     # cv2.imwrite('/opt/data/private/temp/img_dilate.png',img_dilate)
     contours,hierarchy = cv2.findContours(img_dilate.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-    # vis = img_dilate.copy()
-    # for contour in contours:
-    #     poly = np.array(contour).astype(np.int32).reshape((-1))
-    #     poly = poly.reshape(-1, 2)
-    #     # print(poly)
-    #     vis = cv2.fillPoly(np.zeros(img.shape[:2], np.uint8), [poly.reshape((-1, 1, 2))],(255, 0, 0))
-    #     # img_dilate = cv2.polylines(img_dilate.copy(), [poly.reshape((-1, 1, 2))], True, color=(255,0, 0), thickness=5)
-    #     ret = cv2.imwrite('/opt/data/private/temp/merge_region.jpg',np.zeros(img.shape[:2], np.uint8))
+
     return contours
 
 def sort_region(img, cnts, model, device,writer,idx):
@@ -579,14 +552,7 @@ def sort_region(img, cnts, model, device,writer,idx):
         shrinked_polys.append(poly)
     shrinked_cnts = np.array(shrinked_polys)
     shrinked_mask = np.zeros(shrinked_imgs.shape[:2], dtype=np.uint8)
-    # 绘制一个掩码
-    # shrinked_mask = cv2.drawContours(shrinked_mask, shrinked_cnts, -1, 255, thickness=-1)
-    # _, M = cv2.threshold(shrinked_mask, 1, 255, cv2.THRESH_BINARY)
 
-    # # showim(shrinked_imgs)
-    # # showim(M)
-    # input = cv2.bitwise_and(shrinked_imgs, M.astype(np.uint8))
-    # showim(img)
     input = cv2.drawContours(shrinked_mask, shrinked_cnts, -1, 1, thickness=-1)
     img_tensor = torch.from_numpy(input)  # 转tensor
     img_tensor = img_tensor.unsqueeze(0).unsqueeze(0)
@@ -605,8 +571,6 @@ def sort_region(img, cnts, model, device,writer,idx):
     img_dilate = cv2.dilate(shrinked_mask.copy(), kernel, iterations=1)
     img_dilate = cv2.erode(img_dilate.copy(), kernel, iterations=1) #255
     merged_contours, _ = cv2.findContours(img_dilate.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) #256*256
-
-    # merged_mean_mask = np.zeros((shrinked_imgs.shape[0], shrinked_imgs.shape[1]), dtype=np.float32)
 
 
     merged_contour_ids = {}
@@ -638,12 +602,6 @@ def filter_inward_cnt_by_centers(cnt_centers,region_cnt):
     rst = []
     for cc in cnt_centers:
 
-        # cnt = points_to_poly(cnt)
-
-        # cnt = np.array(cnt).astype(np.int32).reshape((-1))
-        # cnt = cnt.reshape(-1, 2)
-        # print(cnt)
-        # print(cc)
         cx,cy = cc[1],cc[2]
         flag = cv2.pointPolygonTest(region_cnt, (cx,cy), False)
         # print(flag)
@@ -656,6 +614,15 @@ def order_by_y(elem):
 def order_by_x(elem):
     return elem[-2]
 def order_it(img,cnts):
+    '''_summary_
+    一种完全基于启发式算法的区域排序实现
+    Args:
+        img (_type_): _description_
+        cnts (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    '''
     cnts_dict = {}
     cnt_centers = []
     cnt_centers_wo_i = []
@@ -718,7 +685,7 @@ def order_it(img,cnts):
 
 def order_it_by_unet(img,cnts,model, device,writer,idx):
     '''
-    缩小的图像和缩小的轮廓
+    基于unet的区域排序
     '''
     cnts_dict = {}
     cnt_centers = []
@@ -744,17 +711,12 @@ def order_it_by_unet(img,cnts,model, device,writer,idx):
     rst_cnts = []
 
     for region_cnt in region_cnts:
-        # print(region_center[1:])
-        # print(region_cnt)
         in_region_ccs = filter_inward_cnt_by_centers(cnt_centers,region_cnt) #find in-region counter centers
-        # print(f'in_region_ccs_len{len(in_region_ccs)}')
-        # print(in_region_ccs)
         in_region_ccs.sort(key=order_by_x,reverse=True)
-        # print(in_region_ccs)
         for item in in_region_ccs:#(i,x,y)
             rst_cnts.append(cnts_dict[f'{item[0]}'])
     return rst_cnts
-#---------------------------------------------------网络模型-------------------------------------------------------------
+#---------------------------------------------------深度学习相关-------------------------------------------------------------
 
 NINF = -1 * float('inf')
 DEFAULT_EMISSION_THRESHOLD = 0.01
@@ -1112,7 +1074,9 @@ class CRNN_CBAM(nn.Module):
 
         output = self.dense(recurrent)
         return output  # shape: (seq_len, batch, num_class)
-#---------------------------------------------------网络模型-------------------------------------------------------------
+
+
+
 class PatchDataset(Dataset):
     def __init__(self, all_patches, tfs, opt):
         self.opt = opt
@@ -1225,7 +1189,7 @@ def seq_rec(rec_model,demo_loader,device):
 
         image = image_tensors.to(device)
         rec_model.to(device)
-        # decode_method = 'beam_search'
+        # 贪心搜索
         beam_size = 1
         decode_method = 'greedy'
         # print(image.shape)
@@ -1303,9 +1267,6 @@ class Up(nn.Module):
 
         x1 = F.pad(x1, [diffX // 2, diffX - diffX // 2,
                         diffY // 2, diffY - diffY // 2])
-        # if you have padding issues, see
-        # https://github.com/HaiyongJiang/U-Net-Pytorch-Unstructured-Buggy/commit/0e854509c2cea854e247a9c615f175f76fbb2e3a
-        # https://github.com/xiaopeng-liao/Pytorch-UNet/commit/8ebac70e633bac59fc22bb5195e513d5832fb3bd
         x = torch.cat([x2, x1], dim=1)
         return self.conv(x)
 
