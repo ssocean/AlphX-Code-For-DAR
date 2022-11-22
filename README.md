@@ -7,6 +7,9 @@
 
 
 ![example](vis/image_553.jpg)
+![example](vis/34-V101P0264.jpg)
+![example](vis/image_373.jpg)
+
 # 环境配置
 `pip install -r requirements.txt`
 # 训练
