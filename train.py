@@ -375,7 +375,7 @@ if __name__ == '__main__':
     try:
         writer = init_tensorboard('./tblogs')
         parser = argparse.ArgumentParser(description='Hyperparams')
-        parser.add_argument('--config', help='config file path')
+        parser.add_argument('--config', help='config file path',default='config\pan_pp\R18-AUG.py')
         parser.add_argument('--checkpoint', nargs='?', type=str, default=None)
         parser.add_argument('--resume', nargs='?', type=str, default=None)
         parser.add_argument('--debug', action='store_true')

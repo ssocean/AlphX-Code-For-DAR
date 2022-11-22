@@ -5,6 +5,7 @@ import os
 from TestModel import Infer # 开发者需要将推理模型封装为一个TestModel.py中的Infer类，并且具有eval()方法
 import glob
 from tqdm import tqdm
+import argparse
 
 # from torch.utils.tensorboard import SummaryWriter
 def get_files_pth(dir_pth: str, suffix: str = '*'):
@@ -19,22 +20,26 @@ def get_files_pth(dir_pth: str, suffix: str = '*'):
     for filename in glob.glob(glob_pth):
         rst.append(filename)
     return rst
-# def init_tensorboard(out_dir: str = 'logs'):
-#     if not os.path.exists(out_dir):  ##目录存在，返回为真
-#         os.makedirs(out_dir)
+'''  # 如需启用tensorboard，请取消相关注释行
+def init_tensorboard(out_dir: str = 'logs'):
+    if not os.path.exists(out_dir):  ##目录存在，返回为真
+        os.makedirs(out_dir)
 
-#     writer = SummaryWriter(log_dir=out_dir)
-#     ''' 
-#     https://pytorch.org/docs/stable/tensorboard.html
-#     writer.
-#     add_scalar(tag, scalar_value, global_step=None, walltime=None, new_style=False, double_precision=False)
-#     add_scalars(main_tag, tag_scalar_dict, global_step=None, walltime=None)
-#     add_image(tag, img_tensor, global_step=None, walltime=None, dataformats='CHW')
-#     add_images(tag, img_tensor, global_step=None, walltime=None, dataformats='NCHW')
-#     '''
+    writer = SummaryWriter(log_dir=out_dir)
+    """
+    https://pytorch.org/docs/stable/tensorboard.html
+    writer.
+    add_scalar(tag, scalar_value, global_step=None, walltime=None, new_style=False, double_precision=False)
+    add_scalars(main_tag, tag_scalar_dict, global_step=None, walltime=None)
+    add_image(tag, img_tensor, global_step=None, walltime=None, dataformats='CHW')
+    add_images(tag, img_tensor, global_step=None, walltime=None, dataformats='NCHW')
+    """
+    return writer
+'''
 
-#     #  writer.close()  需在最后关闭
-#     return writer
+parser = argparse.ArgumentParser(description="Please type the path of the image folder")
+parser.add_argument('-dir', '--input_dir', type=str)
+args = parser.parse_args()
 
 if __name__ == '__main__':
     # writer = init_tensorboard('/opt/data/private/outputs/tblogs')
@@ -46,7 +51,7 @@ if __name__ == '__main__':
     # fetcher = ImageFetcher() 
     # ImageFetcher 是一个迭代器，产生图片路径。开发者自己编写代码进行测试的时候可以直接用测试图片的路径list代替。
     # e.g. fetcher = ['images/image_1000.jpg', 'images/image_1001.jpg', 'images/image_1002.jpg', ...] 
-    fetcher = get_files_pth('/opt/data/private/data/test')
+    fetcher = get_files_pth(args.input_dir)
     #/mnt/lustre/pazhou015/data/dataset-2/testa /opt/data/private/data/test
 
     for img_path in tqdm(fetcher): 
