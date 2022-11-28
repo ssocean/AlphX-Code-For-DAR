@@ -1,6 +1,7 @@
 import cv2 
 import numpy as np
 from imgaug import augmenters as iaa
+
 often = lambda aug: iaa.Sometimes(0.8, aug)
 sometimes = lambda aug: iaa.Sometimes(0.5, aug)
 seldom = lambda aug: iaa.Sometimes(0.2, aug)

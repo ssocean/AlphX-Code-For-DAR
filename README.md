@@ -35,6 +35,7 @@ sh infer.sh
 }
 ```
 ### 叠瓦识别策略
+[[独立代码](https://github.com/ssocean/Overlapping-Recognition)]
 ```
 赵鹏海. 乌金体藏文文档版面分析与识别系统[D].西北民族大学,2022.DOI:10.27408/d.cnki.gxmzc.2022.000367.
 ```
