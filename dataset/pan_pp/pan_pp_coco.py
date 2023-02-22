@@ -22,9 +22,9 @@ from .coco_text import COCO_Text
 EPS = 1e-6
 
 
-ct_root_dir = '/opt/data/private/pan_pp.pytorch/data/'
-ct_train_data_dir = '/opt/data/private/data/test/'#test/ image
-ct_train_gt_path = '/opt/data/private/pan_pp.pytorch/data/label-CT.json'
+ct_root_dir = 'pan_pp.pytorch/data/' 
+ct_train_data_dir = 'data/test/'#test/ image
+ct_train_gt_path = 'pan_pp.pytorch/data/label-CT.json'
 
 
 def get_img(img_path, read_type='cv2'):
@@ -256,7 +256,7 @@ def get_vocabulary(voc_type, EOS='EOS', PADDING='PAD', UNKNOWN='UNK'):
     elif voc_type == 'CHINESE':
         # high_fre.txt
         # chars.txt
-        with open('/opt/data/private/pan_pp.pytorch/chars.txt', 'r',encoding='utf-8') as f:  # 打开文件
+        with open('./chars.txt', 'r',encoding='utf-8') as f:  # 打开文件
             data = f.read()  # 读取文件
             voc = [i for i in data]
     else:
@@ -348,8 +348,6 @@ class Single_Det_Dataset(data.Dataset):
         img_meta.update(dict(img_size=np.array(img.shape[:2])))
         img = Image.fromarray(img)
         img = img.convert('RGB')
-        #如果是黑底
-
         
         img = transforms.ToTensor()(img)
         # print(img.shape)
@@ -365,6 +363,9 @@ class Single_Det_Dataset(data.Dataset):
 
 
 class PAN_PP_COCO(data.Dataset):
+    '''
+    仅检测用此数据集加载类
+    '''
     def __init__(self,
                  split='train',
                  is_transform=False,

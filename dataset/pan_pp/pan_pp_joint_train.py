@@ -21,18 +21,14 @@ from .coco_text import COCO_Text
 
 EPS = 1e-6
 
-# /opt/data/private/pan_pp.pytorch/data/mini-test
+
 '''
 组委会看这里组委会看这里组委会看这里组委会看这里组委会看这里组委会看这里组委会看这里组委会看这里组委会看这里
 '''
 
-ct_train_data_dir = '/opt/data/private/data/TOTAL/' #原始图像放这里
-ct_train_gt_path = '/opt/data/private/data/TOTAL-CT.json' #label-CT.json路径
+ct_train_data_dir = 'data/TOTAL/' #原始图像放这里
+ct_train_gt_path = 'data/TOTAL-CT.json' #label-CT.json路径
 
-#
-# ct_train_data_dir = r'F:\Data\GJJS-dataset\dataset\train\image/'
-# ct_train_gt_path = r'F:\Data\GJJS-dataset\dataset\train\label-CT.json'
-# print(f'CT-GT-Path:{ct_train_gt_path}')
 
 
 def get_vocabulary(voc_type, EOS='EOS', PADDING='PAD', UNKNOWN='UNK'):
@@ -43,7 +39,7 @@ def get_vocabulary(voc_type, EOS='EOS', PADDING='PAD', UNKNOWN='UNK'):
     elif voc_type == 'ALLCASES_SYMBOLS':
         voc = list(string.printable[:-6])
     elif voc_type == 'CHINESE':
-        with open('/opt/data/private/pan_pp.pytorch/chars.txt', 'r',encoding='utf-8') as f:  # 打开文件
+        with open('chars.txt', 'r',encoding='utf-8') as f:  # 打开文件
             data = f.read()  # 读取文件
             voc = [i for i in data]
     else:
@@ -499,7 +495,7 @@ class PAN_PP_Joint_Train(data.Dataset):
                 bboxes = np.reshape(bboxes * ([img.shape[1], img.shape[0]] * (bboxes.shape[1] // 2)),(bboxes.shape[0], -1, 2)).astype('int32')
             for i in range(len(bboxes)):
                 cv2.drawContours(gt_instance, [bboxes[i]], -1, i + 1, -1)
-                # ret = cv2.imwrite(f'/opt/data/private/pan_pp.pytorch/dataset/pan_pp/temp/{i}.png',gt_instance)
+                # ret = cv2.imwrite(f'temp/{i}.png',gt_instance)
                 # assert ret, 'failed'
                 if words[i] == '###':
                     cv2.drawContours(training_mask, [bboxes[i]], -1, 0, -1)

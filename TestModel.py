@@ -107,7 +107,7 @@ class Infer(object):
         img=cv2.imread(image_name)
         assert img is not None, image_name
         print(image_name)
-        # image_name = '/opt/data/private/data/test/image_1028.jpg'
+
         data_loader = Single_Det_Dataset(image_name)
         test_loader = torch.utils.data.DataLoader(
             data_loader,

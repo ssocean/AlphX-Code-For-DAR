@@ -42,7 +42,7 @@ parser.add_argument('-dir', '--input_dir', type=str)
 args = parser.parse_args()
 
 if __name__ == '__main__':
-    # writer = init_tensorboard('/opt/data/private/outputs/tblogs')
+    # writer = init_tensorboard('outputs/tblogs')
     output_dir = 'outputs/'
     os.makedirs(output_dir, exist_ok=True)
 
@@ -52,10 +52,10 @@ if __name__ == '__main__':
     # ImageFetcher 是一个迭代器，产生图片路径。开发者自己编写代码进行测试的时候可以直接用测试图片的路径list代替。
     # e.g. fetcher = ['images/image_1000.jpg', 'images/image_1001.jpg', 'images/image_1002.jpg', ...] 
     fetcher = get_files_pth(args.input_dir)
-    #/mnt/lustre/pazhou015/data/dataset-2/testa /opt/data/private/data/test
+    #/mnt/lustre/pazhou015/data/dataset-2/testa /data/test
 
     for img_path in tqdm(fetcher): 
-        # img_path = r'/opt/data/private/data/test-a/17-V005P0094.png'
+        # img_path = r'data/test-a/17-V005P0094.png'
         inferencer.eval(img_path) #,writer
     # writer.close()
         # 模型前向过程。eval()的流程为：调用图片路径，读取并转换数据并送入模型进行预测，得到所有结果（按阅读顺序排列好的文本框以及对应的文本内容），

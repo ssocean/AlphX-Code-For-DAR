@@ -44,11 +44,15 @@ from models.utils import fuse_module
 from utils import AverageMeter, Corrector, ResultFormat, Visualizer
 H = 64
 is_RGB = True
+
+
 def ndarray_to_tensor(ndarray:np.ndarray):
     # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     t = torch.Tensor(ndarray)
     # t.to(device)
     return t
+
+
 def adapt_rotate(image,angle):
     # image = imutils.resize(image, width=300)
     # 获取图像的维度，并计算中心
@@ -58,11 +62,15 @@ def adapt_rotate(image,angle):
     rotated = imutils.rotate_bound(image, angle)
     # showAndWaitKey('rst',rotated)
     return rotated
+
+
 def get_hor_projection(img_bin):
     img_bin=img_bin
     # showim(img_bin)
     rst = np.sum(img_bin,axis=1)//255
     return rst.tolist()
+
+
 def is_bin_bg_white(img):
     '''_summary_
     判断二值图背景是否为白色
@@ -87,6 +95,8 @@ def is_bin_bg_white(img):
     if ratio > 0.5:
         return True
     return False
+
+
 def get_white_ratio(bbox:np.ndarray):
     '''
     针对黑底白字
@@ -105,9 +115,11 @@ def get_white_ratio(bbox:np.ndarray):
     current_val = np.sum(bbox_bin)
     ratio = current_val/(h*w) #
     return ratio
+
+
 def get_white_ratio_cuda(bbox:np.ndarray):
     '''
-    输入图像应为单通道
+    输入图像应为单通道,cuda加速版本
     针对黑底白字
     '''
     if len(bbox.shape)>2:
@@ -125,6 +137,7 @@ def get_white_ratio_cuda(bbox:np.ndarray):
     # current_val = np.sum(bbox_bin)
     ratio = bbox_tensor.sum()/(h*w) #
     return ratio
+
 
 def is_img_bg_black(img:np.ndarray):
     '''
@@ -146,6 +159,8 @@ def is_img_bg_black(img:np.ndarray):
         if (black_pix_num/(300*300))>0.5:
             return True
     return False
+
+
 def crop_by_hor_projection(hor_projection,threshold):
     '''_summary_
     根据投影信息返回两端第一次非零元素出现位置
@@ -183,6 +198,7 @@ def otsu_bin(img: np.ndarray):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     _, res = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     return res
+
 
 def getCorrect1(img):
     '''_summary_
@@ -233,6 +249,8 @@ def getCorrect1(img):
     top,down = crop_by_hor_projection(hor_proj,threshold//20)
 
     return rotateImg [top:down,:]
+
+
 def getCorrect2(img):
     '''_summary_
     基于轮廓的对齐，可用于矫正任意弯曲的图像
@@ -270,6 +288,8 @@ def getCorrect2(img):
     top,down = crop_by_hor_projection(hor_proj,threshold//20)
     rst = rst[top:down,:]
     return rst
+
+
 def auto_make_directory(dir_pth: str):
     '''
     自动检查dir_pth是否存在，若存在，返回真，若不存在创建该路径，并返回假
@@ -281,6 +301,8 @@ def auto_make_directory(dir_pth: str):
     else:
         os.makedirs(dir_pth)
         return False
+
+
 def rotateAntiClockWise90(img):  # 顺时针旋转90度
     # img = cv2.imread(img_file)
     trans_img = cv2.transpose(img)
@@ -288,6 +310,8 @@ def rotateAntiClockWise90(img):  # 顺时针旋转90度
     # cv2.imshow("rotate", img90)
     # cv2.waitKey(0)
     return img90
+
+
 def deskew(CRNN_ROI):
     deskew_rst = CRNN_ROI
     # 根据比例决定是否进行扭曲矫正，resize操作用于减少计算量
@@ -298,6 +322,8 @@ def deskew(CRNN_ROI):
     if get_white_ratio_cuda(deskew_rst)<0.85:
         deskew_rst = getCorrect2(deskew_rst)
     return deskew_rst
+
+
 def write_csv(rst: list, file_pth: str, overwrite=False):
     '''
     :param rst:形如[('val1', val2),...,('valn', valn)]的列表
@@ -312,6 +338,8 @@ def write_csv(rst: list, file_pth: str, overwrite=False):
     csv_writer.writerows(rst)
 
     file.close()
+
+
 def overlapping_seg(img):
     '''
     重叠切片
@@ -377,16 +405,8 @@ def overlapping_seg(img):
         return [img]
 
     return rst
-def seq_seg_to_char(seq_img,*param)->list:
-    '''
-    将包含多个字符的文本串图像利用单字检测模型分割成只包含单个字丁的图像
-    :param seq_img: 待切图片路径
-    :return: [子图1,子图2,...,子图N] cv2 BGR格式
-    '''
-    return #[img0:np.ndarray,img1:np.ndarray,...,img1:np.ndarray]
 
 
-# overlapping_seg(r'F:\Data\GJJS-dataset\dataset\train\char_seq_bin_2\image_0_11.jpg')
 def merge_str(a:str,b:str,k=2):
     if a != '':
         key = b[1:1+k]
@@ -401,6 +421,8 @@ def merge_str(a:str,b:str,k=2):
         return rst
     else:
         return b
+
+
 def merge_strs(strs:list):
     rst = ''
     for i in strs:
@@ -421,10 +443,13 @@ def cv2_chinese_text(img, text, position, textColor=(0, 0, 255), textSize=30):
     # 转换回OpenCV格式
     return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
+
 def points_to_poly(points):
     poly = np.array(points).astype(np.int32).reshape((-1))
     poly = poly.reshape(-1, 2)
     return [poly.reshape((-1, 1, 2))]
+
+
 def resize_contour(cnts,ori_size,rst_shape):
         '''
         原地操作函数，由于原图尺寸的变换将会导致标注信息的变换，该方法完成在图片尺寸变换时标注信息的同步转换。
@@ -438,6 +463,8 @@ def resize_contour(cnts,ori_size,rst_shape):
         ratio_mat = [[width_ratio,0],[0,height_ratio]]
         # print(points_to_poly(cnts).shape)
         return (np.array(cnts).astype(np.int32).reshape((-1)).reshape((-1,  2))@ratio_mat).astype(np.int32) # n×2 矩阵乘 2×2
+
+
 def model_structure(model):
     blank = ' '
     print('-' * 90)
@@ -467,6 +494,8 @@ def model_structure(model):
     print('The parameters of Model {}: {:4f}M'.format(
         model._get_name(), num_para / 1e6))
     print('-' * 90)
+
+
 def tensor_to_ndarray(t:torch.Tensor):
     cpu_tensor = t.cpu()
     res = cpu_tensor.detach().numpy()  # 转回numpy
@@ -475,6 +504,8 @@ def tensor_to_ndarray(t:torch.Tensor):
     # res = np.swapaxes(res, 0, 2)
     # res = np.swapaxes(res, 0, 1)
     return res
+
+
 def extract_roi_by_cnt(img_ori,point):
     img = img_ori.copy()
     point = point.copy()
@@ -494,6 +525,8 @@ def extract_roi_by_cnt(img_ori,point):
     ROI = cv2.bitwise_and(mask2, img_patch)
     ROI = cv2.rotate(ROI, cv2.ROTATE_90_COUNTERCLOCKWISE)
     return ROI
+
+
 def report_speed(outputs, speed_meters):
     total_time = 0
     for key in outputs:
@@ -504,6 +537,7 @@ def report_speed(outputs, speed_meters):
 
     speed_meters['total_time'].update(total_time)
     print('FPS: %.1f' % (1.0 / speed_meters['total_time'].avg))
+
 
 def find_cnt_center(cnt):
     '''_summary_
@@ -522,6 +556,8 @@ def find_cnt_center(cnt):
     cX = int(M["m10"] / M["m00"])
     cY = int(M["m01"] / M["m00"])
     return (cX,cY)
+
+
 def merge_regions(img,cnts):
     mask = np.zeros(img.shape[:2], np.uint8)
     for c in cnts:
@@ -529,7 +565,7 @@ def merge_regions(img,cnts):
         poly = poly.reshape(-1, 2)
         mask = cv2.fillPoly(mask, [poly.reshape((-1, 1, 2))],
                                  (255, 255, 255))
-    # cv2.imwrite('/opt/data/private/temp/ori_region.png',mask)
+    # cv2.imwrite('temp/ori_region.png',mask)
     # cnt_count = len(cnts)
     # h,w = img.shape[:2]
     k = 3 #11
@@ -537,7 +573,7 @@ def merge_regions(img,cnts):
     kernel = np.ones((4, 4), np.uint8)
     img_dilate = cv2.dilate(mask, kernel, iterations = k)
     img_dilate = otsu_bin(img_dilate)
-    # cv2.imwrite('/opt/data/private/temp/img_dilate.png',img_dilate)
+    # cv2.imwrite('temp/img_dilate.png',img_dilate)
     contours,hierarchy = cv2.findContours(img_dilate.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
     return contours
@@ -682,7 +718,6 @@ def order_it(img,cnts):
     return rst_cnts
 
 
-
 def order_it_by_unet(img,cnts,model, device,writer,idx):
     '''
     基于unet的区域排序
@@ -699,14 +734,14 @@ def order_it_by_unet(img,cnts,model, device,writer,idx):
             cnts_dict[f'{i}'] = poly
             cnt_centers.append((f'{i}',cx,cy))
             cnt_centers_wo_i.append((cx,cy))
-    ori_size = (896,896)
+
     region_cnts = sort_region(img, cnts,model, device,writer,idx)
     vis = img.copy()
     for i in range(len(region_cnts)):
         cv2.drawContours(vis,region_cnts,i,(20*i,20*i,20*i),-1)
 
     # writer.add_images('region_cnt_vis', vis, global_step=idx, dataformats='HWC')
-    # cv2.imwrite(f'/opt/data/private/outputs/order-vis/{str(uuid.uuid4())}.png',vis)
+    # cv2.imwrite(f'outputs/order-vis/{str(uuid.uuid4())}.png',vis)
     # print(region_cnts)
     rst_cnts = []
 
@@ -716,6 +751,8 @@ def order_it_by_unet(img,cnts,model, device,writer,idx):
         for item in in_region_ccs:#(i,x,y)
             rst_cnts.append(cnts_dict[f'{item[0]}'])
     return rst_cnts
+
+
 #---------------------------------------------------深度学习相关-------------------------------------------------------------
 
 NINF = -1 * float('inf')
@@ -855,8 +892,11 @@ def ctc_decode(log_probs, label2char=None, blank=0, method='beam_search', beam_s
             decoded = [label2char[l] for l in decoded]
         decoded_list.append(decoded)
     return decoded_list
-class CRNN(nn.Module):
 
+class CRNN(nn.Module):
+    '''
+    模型文件，理论上可更换任意模型在此
+    '''
     def __init__(self, img_channel, img_height, img_width, num_class,
                  map_to_seq_hidden=64, rnn_hidden=256, leaky_relu=False):
         super(CRNN, self).__init__()
@@ -986,7 +1026,9 @@ class CBAM(nn.Module):
 
 
 class CRNN_CBAM(nn.Module):
-
+    '''
+    加入CBAM模块的CRNN
+    '''
     def __init__(self, img_channel, img_height, img_width, num_class,
                  map_to_seq_hidden=64, rnn_hidden=256, leaky_relu=False):
         super(CRNN_CBAM, self).__init__()
@@ -1113,6 +1155,9 @@ class PatchDataset(Dataset):
 
 
 def load_chars():
+    '''
+    由于多人开发，未避免出错保留了两套加载字典的代码和字库
+    '''
     CHARS = ''
     code_list_path = ''
     with open(os.path.join(code_list_path, 'codelist.txt'), 'r') as f:
@@ -1281,7 +1326,9 @@ class OutConv(nn.Module):
 
 
 class UNet(nn.Module):
-
+    '''
+    一个简单的UNet结构，训练文件可参考https://github.com/ssocean/Attention-U-Net
+    '''
     def __init__(self, n_classes=1, n_channels=3, bilinear=True):
         self.name = 'UNet'
         super(UNet, self).__init__()
