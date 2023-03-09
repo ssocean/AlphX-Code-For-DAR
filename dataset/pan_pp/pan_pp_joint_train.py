@@ -39,7 +39,7 @@ def get_vocabulary(voc_type, EOS='EOS', PADDING='PAD', UNKNOWN='UNK'):
     elif voc_type == 'ALLCASES_SYMBOLS':
         voc = list(string.printable[:-6])
     elif voc_type == 'CHINESE':
-        with open('chars.txt', 'r',encoding='utf-8') as f:  # 打开文件
+        with open('codelist.txt', 'r',encoding='utf-8') as f:  # 打开文件
             data = f.read()  # 读取文件
             voc = [i for i in data]
     else:

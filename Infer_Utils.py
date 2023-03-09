@@ -1,23 +1,12 @@
 # coding=utf-8
 import os
 import sys
-import uuid
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
-import argparse
 import csv
-import glob
-import imp
-import json
 import math
-import os
-import os.path as osp
 import sys
 from collections import defaultdict
-from random import random
-from time import sleep
-
 import cv2
 import imgaug.augmenters as iaa
 import imutils
@@ -28,20 +17,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data
-from mmcv import Config
 from PIL import Image, ImageDraw, ImageFont
-from scipy import signal
-from scipy.io import wavfile
 from scipy.special import \
     logsumexp  # log(p1 + p2) = logsumexp([log_p1, log_p2])
 from torch.utils.data import Dataset
 from torchvision import transforms
-from tqdm import tqdm
 
-from dataset import build_data_loader
-from models import build_model
-from models.utils import fuse_module
-from utils import AverageMeter, Corrector, ResultFormat, Visualizer
+
+
 H = 64
 is_RGB = True
 
@@ -649,6 +632,7 @@ def order_by_y(elem):
     return elem[-1]
 def order_by_x(elem):
     return elem[-2]
+
 def order_it(img,cnts):
     '''_summary_
     一种完全基于启发式算法的区域排序实现
@@ -741,7 +725,6 @@ def order_it_by_unet(img,cnts,model, device,writer,idx):
         cv2.drawContours(vis,region_cnts,i,(20*i,20*i,20*i),-1)
 
     # writer.add_images('region_cnt_vis', vis, global_step=idx, dataformats='HWC')
-    # cv2.imwrite(f'outputs/order-vis/{str(uuid.uuid4())}.png',vis)
     # print(region_cnts)
     rst_cnts = []
 
@@ -1140,13 +1123,6 @@ class PatchDataset(Dataset):
         # image = image[0]
 
 
-        # image = torch.unsqueeze(image, 0)*
-
-        # if self.opt.rgb:
-        #     # Image.fromarray(patch_cv).convert('RGB')
-        #     img = Image.fromarray(image).convert('RGB')  # for color image
-        # else:
-
         image = np.array(image)
         image = tfs(image)
 
@@ -1164,14 +1140,16 @@ def load_chars():
         for i, line in enumerate(f.readlines()):
             CHARS =  CHARS + line.strip()
         return CHARS
+
 config = {
-    'data_dir': 'data/mnt/ramdisk/max/90kDICT32px/',
+    'data_dir': 'to/your/path',
     'img_width': 512,
     'img_height': H,
     'map_to_seq_hidden': 128,
     'rnn_hidden': 256,
     'leaky_relu': False,
 }
+
 class Arg():
     def __init__(self):
         self.imgH = H
@@ -1188,7 +1166,7 @@ class Arg():
         self.PAD = True
         self.sensitive = False
         self.rgb = is_RGB
-        self.saved_model ='/weights-bk/best_norm_ED.pth'
+        self.saved_model ='to/your/path'
         self.workers = 0
         self.batch_size = 2
         self.character = load_chars()
@@ -1327,7 +1305,7 @@ class OutConv(nn.Module):
 
 class UNet(nn.Module):
     '''
-    一个简单的UNet结构，训练文件可参考https://github.com/ssocean/Attention-U-Net
+    一个简单的UNet结构，训练文件可参考https://github.com/ssocean/UNet-Binarization
     '''
     def __init__(self, n_classes=1, n_channels=3, bilinear=True):
         self.name = 'UNet'
