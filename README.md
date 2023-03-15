@@ -46,7 +46,7 @@ sh train_pan_pp/train.sh
 `
 ### CRNN训练
 `
-
+你可以参考任意的端到端识别代码库进行训练，推荐参考https://github.com/clovaai/deep-text-recognition-benchmark。
 `
 
 ### UNet训练
