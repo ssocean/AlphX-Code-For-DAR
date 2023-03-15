@@ -3,24 +3,27 @@ import json
 import os
 import os.path as osp
 import random
-import sys
 import time
-from imgaug import augmenters as iaa
 import numpy as np
 import torch
+import os
+import sys
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
 from mmcv import Config
-import torchvision.transforms as transforms
-from PIL import Image
-from dataset import build_data_loader
 from models import build_model
+from dataset import build_data_loader
+
 from utils import AverageMeter
 import warnings
+
 warnings.filterwarnings("ignore")
 torch.manual_seed(9797)
 torch.cuda.manual_seed(9797)
 np.random.seed(9797)
 random.seed(9797)
 EPS = 1e-6
+
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -41,6 +44,7 @@ def init_tensorboard(out_dir: str = 'logs'):
 
     #  writer.close()  需在最后关闭
     return writer
+
 def eval(train_loader, model,  epoch,  cfg):
     with torch.no_grad():
         model.train()
@@ -156,13 +160,9 @@ def train(train_loader, model, optimizer, epoch, start_iter, cfg):
 
         # prepare input
         data.update(dict(cfg=cfg))
-
         
         outputs = model(**data)
-        # *************************************************************************
-        # print(outputs)
-        # print(r'--------------------------------------------------------------------')
-        # detection loss
+
         loss_text = torch.mean(outputs['loss_text'])
         losses_text.update(loss_text.item(), data['imgs'].size(0))
 
@@ -375,7 +375,7 @@ if __name__ == '__main__':
     try:
         writer = init_tensorboard('./tblogs')
         parser = argparse.ArgumentParser(description='Hyperparams')
-        parser.add_argument('--config', help='config file path',default='config\pan_pp\R18-AUG.py')
+        parser.add_argument('--config', help='config file path',default='config/pan_pp/R18-AUG.py')
         parser.add_argument('--checkpoint', nargs='?', type=str, default=None)
         parser.add_argument('--resume', nargs='?', type=str, default=None)
         parser.add_argument('--debug', action='store_true')
