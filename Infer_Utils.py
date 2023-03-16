@@ -5,6 +5,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 import csv
 import math
+<<<<<<< Updated upstream
+=======
+import os
+>>>>>>> Stashed changes
 import sys
 from collections import defaultdict
 import cv2
@@ -718,11 +722,19 @@ def order_it_by_unet(img,cnts,model, device,writer,idx):
             cnts_dict[f'{i}'] = poly
             cnt_centers.append((f'{i}',cx,cy))
             cnt_centers_wo_i.append((cx,cy))
+<<<<<<< Updated upstream
 
     region_cnts = sort_region(img, cnts,model, device,writer,idx)
     vis = img.copy()
     for i in range(len(region_cnts)):
         cv2.drawContours(vis,region_cnts,i,(20*i,20*i,20*i),-1)
+=======
+    # ori_size = (896,896)
+    region_cnts = sort_region(img, cnts,model, device,writer,idx) # UNet排序
+    # vis = img.copy()
+    # for i in range(len(region_cnts)):
+    #     cv2.drawContours(vis,region_cnts,i,(20*i,20*i,20*i),-1)
+>>>>>>> Stashed changes
 
     # writer.add_images('region_cnt_vis', vis, global_step=idx, dataformats='HWC')
     # print(region_cnts)
